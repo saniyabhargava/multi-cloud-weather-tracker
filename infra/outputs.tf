@@ -14,3 +14,9 @@ output "route53_record" {
   value       = var.use_route53 ? "${var.record_name} (in Route53 zone ${var.route53_zone_id})" : "disabled"
   description = "Optional custom DNS via Route53"
 }
+
+# Public URL to index.html in OCI Object Storage
+output "oci_site_url" {
+  value = "https://objectstorage.${var.oci_region}.oraclecloud.com/n/${var.oci_namespace}/b/${oci_objectstorage_bucket.site.name}/o/index.html"
+  description = "Direct URL to the Oracle Cloud (OCI) hosted version of the site"
+}

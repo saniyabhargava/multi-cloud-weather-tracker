@@ -1,0 +1,26 @@
+# Node / React
+node_modules/
+dist/
+*.log
+npm-debug.log*
+
+# Frontend env
+frontend/.env
+
+# Azure Functions
+backend/azure-functions-weather/WeatherProxy/func.zip
+backend/azure-functions-weather/WeatherProxy/node_modules/
+
+# Terraform
+infra/.terraform/
+infra/.terraform.lock.hcl
+infra/terraform.tfstate
+infra/terraform.tfstate.backup
+infra/crash.log
+
+# VS Code
+.vscode/
+
+# OS junk
+.DS_Store
+Thumbs.db

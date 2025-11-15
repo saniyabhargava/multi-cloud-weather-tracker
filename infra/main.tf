@@ -137,3 +137,62 @@ resource "aws_route53_record" "tm_alias" {
   ttl     = 60
   records = [azurerm_traffic_manager_profile.tm.fqdn]
 }
+
+###########################
+# OCI: Object Storage site
+###########################
+
+# Extra helpers to push all files from frontend/dist into the bucket
+# when you run `terraform apply`.
+#
+# This assumes your Terraform lives in infra/
+# and your built frontend lives in ../frontend/dist
+
+locals {
+  # List of all files in the built frontend
+  oci_site_files = fileset("${path.module}/../frontend/dist", "**")
+
+  # Minimal content-type mapping – extend if you like
+  oci_mime_types = {
+    ".html" = "text/html"
+    ".js"   = "application/javascript"
+    ".css"  = "text/css"
+    ".json" = "application/json"
+    ".png"  = "image/png"
+    ".jpg"  = "image/jpeg"
+    ".jpeg" = "image/jpeg"
+    ".svg"  = "image/svg+xml"
+  }
+}
+
+resource "oci_objectstorage_bucket" "site" {
+  compartment_id = var.oci_compartment_ocid
+  name           = "${var.project}-site-${random_string.suffix.result}"
+  namespace      = var.oci_namespace
+
+  # Make objects publicly readable
+  access_type = "PublicRead"
+
+  freeform_tags = local.tags
+}
+
+# Upload every built file from frontend/dist into OCI bucket
+resource "oci_objectstorage_object" "site_files" {
+  for_each = { for f in local.oci_site_files : f => f }
+
+  namespace = var.oci_namespace
+  bucket    = oci_objectstorage_bucket.site.name
+
+  # Object key/path in the bucket
+  object = each.value
+
+  # Read file contents from the built frontend
+  content = file("${path.module}/../frontend/dist/${each.value}")
+
+  # Best-effort content type detection from file extension
+  content_type = lookup(
+    local.oci_mime_types,
+    regex("\\.[^.]+$", each.value),
+    "application/octet-stream"
+  )
+}

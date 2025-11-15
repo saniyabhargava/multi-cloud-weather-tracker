@@ -9,3 +9,19 @@ variable "azure_tenant_id"       { type = string }
 variable "use_route53"       { type = bool   default = false }
 variable "route53_zone_id"   { type = string default = "" } # e.g. Z123456789
 variable "record_name"       { type = string default = "weather" } # subdomain (weather.example.com)
+
+
+variable "oci_region" {
+  description = "OCI region where the bucket is created (e.g., eu-frankfurt-1)"
+  type        = string
+}
+
+variable "oci_namespace" {
+  description = "OCI Object Storage namespace (from Tenancy details)"
+  type        = string
+}
+
+variable "oci_compartment_ocid" {
+  description = "OCI Compartment OCID where the bucket will live"
+  type        = string
+}
